@@ -355,11 +355,11 @@ async def async_setup_entry(hass, entry):
             if not is_running(switch_id):
                 return # exit if state is false
             #call service to turn on/off the light
-            await update_entity(entity_id, state, entity.unavailable_as_off, entity.brightness)
+            await update_entity(entity_id, state, entity.unavailable_as_off, entity.brightness, idx > 0)
             #and remove this event from the attribute list of the switch entity
             await entity.async_remove_event(entity_id)
 
-    async def update_entity(entity_id, state, unavailable_as_off, brightness):
+    async def update_entity(entity_id, state, unavailable_as_off, brightness, should_send_event=True):
         """ Switch the entity """
         # use service scene.apply ?? https://www.home-assistant.io/integrations/scene/
         """
@@ -479,7 +479,7 @@ async def async_setup_entry(hass, entry):
             else:
                 _LOGGER.debug("State in neither on nor off (is %s), do nothing", state.state)
         try:
-            if event_data is not None:
+            if event_data is not None and should_send_event:
                 hass.bus.fire(MY_EVENT, event_data)
         except NameError:
             pass
